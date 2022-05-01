@@ -1,0 +1,207 @@
+Sourcecode:
+
+1.Feedback.java
+
+package com.simplilearn.demo.entity;
+import javax.persistence.Column;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+
+@Entity
+public class Feedback {
+	@Id
+	@Column(name="id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private int id;
+	private String name;
+	private String email;
+	private String feedback;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFeedback() {
+		return feedback;
+	}
+	public void setFeedback(String feedback) {
+		this.feedback= feedback;
+	}
+	
+	
+
+}
+
+2.FeedbackApplication.java
+
+package com.simplilearn.demo;
+
+import org.springframework.boot.SpringApplication;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+
+@SpringBootApplication
+@ComponentScan("com.simplilearn.demo")
+public class FeedbackApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FeedbackApplication.class, args);
+	}
+
+}
+
+
+3.FeedbackApplicationTests.java
+
+package com.example.demo;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class FeedbackApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+
+4.FeedbackController.java
+
+package com.simplilearn.demo;
+
+import java.util.List;
+
+
+
+
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.simplilearn.demo.entity.Feedback;
+import com.simplilearn.demo.service.FeedbackService;
+
+
+@RestController
+@RequestMapping("/api/feedback")
+public class FeedbackController {
+	@Autowired
+	private FeedbackService service;
+	//create new record 
+	@PostMapping("/")
+	public ResponseEntity<Feedback> addFeedback(@RequestBody Feedback f){
+		Feedback feedback=service.addFeedback(f);
+			return new ResponseEntity<Feedback>(feedback, HttpStatus.CREATED);
+	}
+	//get all users
+	@GetMapping("/")
+	public List<Feedback> getAllFeedback(){
+		return service.getAllFeedback();
+	}
+	//get user by id
+	@GetMapping("/{id}")
+	public ResponseEntity<Feedback>getUserById(@PathVariable int id){
+		Feedback feedback =service.getFeedbackById(id);
+		if(feedback!=null)
+			return new ResponseEntity<Feedback>(feedback, HttpStatus.FOUND);
+		else
+			return new ResponseEntity<Feedback>(feedback,HttpStatus.NOT_FOUND);
+			
+	}
+			
+		
+		
+
+	}
+	
+
+
+5.FeedbackRepo.java
+
+package com.simplilearn.demo.repo;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import org.springframework.stereotype.Repository;
+import com.simplilearn.demo.entity.Feedback;
+@Repository
+public interface FeedbackRepo extends JpaRepository<Feedback, Integer>{
+}
+
+
+6.FeedbackService.java
+
+package com.simplilearn.demo.service;
+import java.util.List;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.simplilearn.demo.entity.Feedback;
+import com.simplilearn.demo.repo.FeedbackRepo;
+
+@Service
+public class FeedbackService {
+	
+	@Autowired
+	private FeedbackRepo repo;
+	
+	//add user method
+	public Feedback addUser(Feedback f) {
+		return repo.save(f);
+	}
+	
+	// List user method
+	public List<Feedback> getAllFeedback(){
+		return repo.findAll();
+	}
+	
+	
+	//get user by ID
+	public Feedback getFeedbackById(int id) {
+		
+		if(repo.findById(id).isPresent())
+			return repo.findById(id).get();
+		else
+			return null;
+		
+	}
+
+	public Feedback addFeedback(Feedback f) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+}
